@@ -1,3 +1,5 @@
+// change the delete API gateway URL from below code
+
 const express = require('express');
 const path = require('path');
 const app = express();
@@ -23,7 +25,7 @@ app.delete('/api/delete', async (req, res) => {
     const fetch = (await import('node-fetch')).default;
 
     // Call the AWS Lambda function
-    const response = await fetch('https://ly7nl5fawc.execute-api.us-east-1.amazonaws.com/delete', {
+    const response = await fetch('https://xyz<Your_Respective_Link>.amazonaws.com/delete', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'
