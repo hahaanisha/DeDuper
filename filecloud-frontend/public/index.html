@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileCloud - Deduplication System</title>
+    <style>
+        :root {
+            --primary-color: #0082c9;
+            --secondary-color: #f5f5f5;
+            --border-color: #ddd;
+            --success-color: #46b489;
+            --error-color: #e9322d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+        }
+
+        .user-panel {
+            display: flex;
+            align-items: center;
+        }
+
+        .main-content {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-right: 20px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .content-area {
+            flex: 1;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+            margin-right: 10px;
+        }
+
+        .breadcrumb span {
+            margin-right: 10px;
+            color: #777;
+        }
+
+        .action-buttons {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 15px;
+            background-color: var(--secondary-color);
+            border: none;
+            border-radius: 4px;
+            color: #333;
+            font-weight: 500;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0070b1;
+        }
+
+        .file-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .file-list th {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--border-color);
+            color: #666;
+            font-weight: 600;
+        }
+
+        .file-list td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .file-list tr:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .file-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        .file-name {
+            display: flex;
+            align-items: center;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 5px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .upload-area.highlight {
+            border-color: var(--primary-color);
+            background-color: rgba(0, 130, 201, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input {
+            position: absolute;
+            font-size: 100px;
+            right: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-progress {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+            height: 8px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .status-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .status-success {
+            background-color: rgba(70, 180, 137, 0.1);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .status-error {
+            background-color: rgba(233, 50, 45, 0.1);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        .status-duplicate {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #f0ad4e;
+            border: 1px solid #f0ad4e;
+        }
+
+        #fileHashInfo {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .user-id-container {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--secondary-color);
+            border-radius: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 50%;
+            max-width: 500px;
+        }
+
+        .close {
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .deletion-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-cloud"></i> DeDuper
+            </div>
+            <div class="user-panel">
+                <div class="user-id-display">User ID: <span id="currentUserID">guest</span></div>
+                <button class="btn" id="changeUserBtn" style="margin-left: 10px;"><i class="fas fa-user"></i> Change User</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="sidebar">
+                <ul class="sidebar-menu">
+                    <li><a href="#" class="active"><i class="fas fa-file"></i> Files</a></li>
+                    <li><a href="#"><i class="fas fa-share-alt"></i> Sharing</a></li>
+                    <li><a href="#"><i class="fas fa-history"></i> Activity</a></li>
+                    <li><a href="#"><i class="fas fa-trash"></i> Deleted files</a></li>
+                    <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                </ul>
+            </div>
+
+            <div class="content-area">
+                <div class="breadcrumb">
+                    <a href="#"><i class="fas fa-home"></i> Home</a>
+                    <span>/</span>
+                    <a href="#">Files</a>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn" id="newFolderBtn"><i class="fas fa-folder-plus"></i> New folder</button>
+                    <button class="btn btn-primary" id="uploadBtn"><i class="fas fa-cloud-upload-alt"></i> Upload file</button>
+                </div>
+
+                <div class="upload-area" id="dropArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Upload files</h3>
+                    <p>Drag and drop files here or</p>
+                    <div class="file-input-wrapper">
+                        <button class="btn btn-primary">Select files</button>
+                        <input type="file" class="file-input" id="fileInput" multiple>
+                    </div>
+                </div>
+
+                <div class="upload-progress" id="uploadProgress">
+                    <h4>Uploading <span id="currentFileName">file.jpg</span></h4>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <p id="uploadStatus">0%</p>
+                </div>
+
+                <div class="status-message" id="statusMessage"></div>
+
+                <div id="fileHashInfo"></div>
+
+                <h3>Your Files</h3>
+                <table class="file-list">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Size</th>
+                            <th>Modified</th>
+                            <th>SHA256 Hash</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fileListBody">
+                        <!-- Files will be displayed here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- User ID Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h3>Set User ID</h3>
+            <p>Enter your user ID to continue:</p>
+            <input type="text" id="userIDInput" placeholder="Your user ID" style="width: 100%; padding: 8px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px;">
+            <button class="btn btn-primary" id="saveUserID">Save</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for existing user ID in localStorage
+            const savedUserID = localStorage.getItem('fileCloudUserID');
+
+            // Elements
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('fileInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('progressBar');
+            const uploadStatus = document.getElementById('uploadStatus');
+            const currentFileName = document.getElementById('currentFileName');
+            const statusMessage = document.getElementById('statusMessage');
+            const fileHashInfo = document.getElementById('fileHashInfo');
+            const fileListBody = document.getElementById('fileListBody');
+            const changeUserBtn = document.getElementById('changeUserBtn');
+            const userModal = document.getElementById('userModal');
+            const closeModal = document.getElementById('closeModal');
+            const saveUserIDBtn = document.getElementById('saveUserID');
+
+            // Object to store user file lists
+            let userFilesMap = {};
+
+            // Load user files from localStorage if available
+            const savedUserFiles = localStorage.getItem('fileCloudUserFiles');
+            if (savedUserFiles) {
+                try {
+                    userFilesMap = JSON.parse(savedUserFiles);
+                } catch (e) {
+                    console.error('Error parsing saved user files', e);
+                    userFilesMap = {};
+                }
+            }
+
+            if (savedUserID) {
+                document.getElementById('currentUserID').textContent = savedUserID;
+                // Load and display this user's files
+                loadUserFiles(savedUserID);
+            } else {
+                // Show modal to set user ID
+                userModal.style.display = 'block';
+            }
+
+            // User ID handling
+            changeUserBtn.addEventListener('click', function() {
+                userModal.style.display = 'block';
+            });
+
+            closeModal.addEventListener('click', function() {
+                if (localStorage.getItem('fileCloudUserID')) {
+                    userModal.style.display = 'none';
+                }
+            });
+
+            saveUserIDBtn.addEventListener('click', function() {
+                const userID = document.getElementById('userIDInput').value.trim();
+                if (userID) {
+                    localStorage.setItem('fileCloudUserID', userID);
+                    document.getElementById('currentUserID').textContent = userID;
+                    userModal.style.display = 'none';
+
+                    // Load this user's files
+                    loadUserFiles(userID);
+                } else {
+                    alert('Please enter a valid user ID');
+                }
+            });
+
+            // Prevent closing modal if no user ID
+            window.onclick = function(event) {
+                if (event.target == userModal && localStorage.getItem('fileCloudUserID')) {
+                    userModal.style.display = 'none';
+                }
+            };
+
+            // Function to load user files
+            function loadUserFiles(userID) {
+                // Clear existing files from UI
+                fileListBody.innerHTML = '';
+
+                // Get user's files array or create empty array if none exists
+                const userFiles = userFilesMap[userID] || [];
+
+                // Display files in UI
+                userFiles.forEach(file => {
+                    addFileToList(file);
+                });
+            }
+
+            // Function to save user file data
+            function saveUserFileData(userID, fileData) {
+                // Get user's files array or create empty array if none exists
+                if (!userFilesMap[userID]) {
+                    userFilesMap[userID] = [];
+                }
+
+                // Add file to user's array
+                userFilesMap[userID].push(fileData);
+
+                // Save to localStorage
+                localStorage.setItem('fileCloudUserFiles', JSON.stringify(userFilesMap));
+            }
+
+            // Function to remove file from user data
+            function removeUserFile(userID, fileHash) {
+                if (userFilesMap[userID]) {
+                    // Filter out the file with matching hash
+                    userFilesMap[userID] = userFilesMap[userID].filter(file => file.hash !== fileHash);
+
+                    // Save updated data
+                    localStorage.setItem('fileCloudUserFiles', JSON.stringify(userFilesMap));
+                }
+            }
+
+            // Drag and drop functionality
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.classList.add('highlight');
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('highlight');
+            }
+
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                handleFiles(files);
+            }
+
+            // File selection via button
+            fileInput.addEventListener('change', function() {
+                handleFiles(this.files);
+            });
+
+            uploadBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+
+            // Handle file uploads
+            function handleFiles(files) {
+                const userID = localStorage.getItem('fileCloudUserID');
+                if (!userID) {
+                    alert('Please set your user ID first');
+                    userModal.style.display = 'block';
+                    return;
+                }
+
+                if (files.length === 0) return;
+
+                // Reset UI
+                statusMessage.style.display = 'none';
+                fileHashInfo.style.display = 'none';
+
+                Array.from(files).forEach(file => {
+                    uploadFile(file);
+                });
+            }
+
+            function uploadFile(file) {
+                const userID = localStorage.getItem('fileCloudUserID');
+
+                // Show progress UI
+                uploadProgress.style.display = 'block';
+                currentFileName.textContent = file.name;
+                progressBar.style.width = '0%';
+                uploadStatus.textContent = '0%';
+
+                // Calculate SHA256 hash of file for deduplication
+                calculateSHA256(file).then(hash => {
+                    // Display hash info
+                    fileHashInfo.innerHTML = `
+                        <h4>File Hash Information</h4>
+                        <p><strong>Filename:</strong> ${file.name}</p>
+                        <p><strong>Size:</strong> ${formatFileSize(file.size)}</p>
+                        <p><strong>SHA256:</strong> ${hash}</p>
+                    `;
+                    fileHashInfo.style.display = 'block';
+
+                    // Check if file already exists for this user
+                    const userFiles = userFilesMap[userID] || [];
+                    const existingFile = userFiles.find(f => f.hash === hash);
+
+                    if (existingFile) {
+                        // Handle duplicate file
+                        progressBar.style.width = '100%';
+                        uploadStatus.textContent = 'Duplicate found!';
+
+                        statusMessage.textContent = `This file is a duplicate of "${existingFile.name}". Deduplication completed.`;
+                        statusMessage.className = 'status-message status-duplicate';
+                        statusMessage.style.display = 'block';
+
+                        return;
+                    }
+
+                    // Prepare form data for upload
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    const uploadURL = `http://54.175.236.209:8000/owncloud-upload?userID=${userID}`;
+
+                    // Upload to backend
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', uploadURL, true);
+
+                    xhr.upload.addEventListener('progress', function(e) {
+                        if (e.lengthComputable) {
+                            const percentComplete = Math.round((e.loaded / e.total) * 100);
+                            progressBar.style.width = percentComplete + '%';
+                            uploadStatus.textContent = percentComplete + '%';
+                        }
+                    });
+
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            // Handle successful upload
+                            const response = JSON.parse(xhr.responseText);
+
+                            statusMessage.textContent = 'File uploaded successfully!';
+                            statusMessage.className = 'status-message status-success';
+                            statusMessage.style.display = 'block';
+
+                            // Add to file list
+                            const newFile = {
+                                name: file.name,
+                                size: file.size,
+                                modified: new Date().toLocaleString(),
+                                hash: hash,
+                                isDuplicate: false,
+                                s3Key: response.s3Key || ''
+                            };
+
+                            // Save file data locally
+                            saveUserFileData(userID, newFile);
+
+                            // Add to UI
+                            addFileToList(newFile);
+
+                        } else {
+                            // Handle upload failure
+                            let errorMsg = 'Upload failed.';
+                            try {
+                                const response = JSON.parse(xhr.responseText);
+                                errorMsg = response.detail || errorMsg;
+                            } catch (e) {}
+
+                            statusMessage.textContent = errorMsg;
+                            statusMessage.className = 'status-message status-error';
+                            statusMessage.style.display = 'block';
+                        }
+                    };
+
+                    xhr.onerror = function() {
+                        statusMessage.textContent = 'Network error occurred during upload.';
+                        statusMessage.className = 'status-message status-error';
+                        statusMessage.style.display = 'block';
+                    };
+
+                    xhr.send(formData);
+                });
+            }
+
+            // Helper function to format file size
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Add file to the UI list
+            function addFileToList(file) {
+                const row = document.createElement('tr');
+                row.setAttribute('data-hash', file.hash);
+
+                let fileIcon = 'fas fa-file';
+                if (file.name.match(/\.(jpg|jpeg|png|gif)$/i)) {
+                    fileIcon = 'fas fa-file-image';
+                } else if (file.name.match(/\.(pdf)$/i)) {
+                    fileIcon = 'fas fa-file-pdf';
+                } else if (file.name.match(/\.(doc|docx)$/i)) {
+                    fileIcon = 'fas fa-file-word';
+                } else if (file.name.match(/\.(xls|xlsx)$/i)) {
+                    fileIcon = 'fas fa-file-excel';
+                }
+
+                row.innerHTML = `
+                    <td class="file-name">
+                        <i class="${fileIcon} file-icon"></i>
+                        ${file.name}
+                        ${file.isDuplicate ? '<span style="color:#f0ad4e;margin-left:8px">(Deduplicated)</span>' : ''}
+                    </td>
+                    <td>${formatFileSize(file.size)}</td>
+                    <td>${file.modified}</td>
+                    <td>${file.hash.substring(0, 10)}...</td>
+                    <td>
+                        <button class="btn download-btn" title="Download"><i class="fas fa-download"></i></button>
+                        <button class="btn delete-btn" title="Delete" data-hash="${file.hash}"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+
+                fileListBody.appendChild(row);
+
+                // Add event listener for delete button
+                row.querySelector('.delete-btn').addEventListener('click', function() {
+                    const fileHash = this.getAttribute('data-hash');
+                    const userID = localStorage.getItem('fileCloudUserID');
+                    deleteFile(fileHash, userID, row);
+                });
+            }
+
+            // Delete file function
+            function deleteFile(fileHash, userID, rowElement) {
+                // Show delete spinner
+                const deleteBtn = rowElement.querySelector('.delete-btn');
+                const originalContent = deleteBtn.innerHTML;
+                deleteBtn.innerHTML = '<div class="deletion-spinner"></div>';
+                deleteBtn.disabled = true;
+
+                // Call the delete API
+                fetch('/api/delete', {
+                    method: 'DELETE', // Change this to DELETE
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fileHash: fileHash,
+                        userID: userID
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Remove file from UI
+                    rowElement.remove();
+
+                    // Remove file from local storage
+                    removeUserFile(userID, fileHash);
+
+                    // Show success message
+                    statusMessage.textContent = 'File deleted successfully!';
+                    statusMessage.className = 'status-message status-success';
+                    statusMessage.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+
+                    // Restore button
+                    deleteBtn.innerHTML = originalContent;
+                    deleteBtn.disabled = false;
+
+                    // Show error message
+                    statusMessage.textContent = 'Error deleting file: ' + error.message;
+                    statusMessage.className = 'status-message status-error';
+                    statusMessage.style.display = 'block';
+                });
+            }
+
+            // Calculate SHA256 hash of file
+            async function calculateSHA256(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsArrayBuffer(file);
+                    reader.onload = async function() {
+                        try {
+                            const hashBuffer = await crypto.subtle.digest('SHA-256', reader.result);
+                            const hashArray = Array.from(new Uint8Array(hashBuffer));
+                            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                            resolve(hashHex);
+                        } catch (e) {
+                            reject('Error calculating file hash: ' + e.message);
+                        }
+                    };
+                    reader.onerror = function() {
+                        reject('Error reading file');
+                    };
+                });
+            }
+
+            // Initialize with blank UI
+            document.getElementById('newFolderBtn').addEventListener('click', function() {
+                alert('New folder functionality would be implemented here.');
+            });
+        });
+    </script>
+</body>
+</html>
