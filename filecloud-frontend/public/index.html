@@ -641,7 +641,7 @@
                     const formData = new FormData();
                     formData.append('file', file);
 
-                    const uploadURL = `http://54.175.236.209:8000/owncloud-upload?userID=${userID}`;
+                    const uploadURL = `http://<Your EC2 Instance IP>:8000/owncloud-upload?userID=${userID}`;
 
                     // Upload to backend
                     const xhr = new XMLHttpRequest();
