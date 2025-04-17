@@ -163,7 +163,3 @@ cd middleware
 
 - [Anisha Shankar](https://github.com/hahaanisha)
 - [Tejas Gadge ](https://github.com/tejasgadge2504)
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
