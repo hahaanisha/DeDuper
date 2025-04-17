@@ -2,7 +2,7 @@
 
 FileCloud is a file storage and management system with built-in deduplication using SHA256 checksums. This project consists of a FastAPI middleware, frontend interface, and Node.js server.
 
-![FileCloud Logo](screenshots/logo.png)
+![FileCloud Logo](readme_screenshots/header.png)
 <!-- Add your logo screenshot here -->
 
 ## Features
@@ -17,17 +17,11 @@ FileCloud is a file storage and management system with built-in deduplication us
 
 ## Screenshots
 
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
+### Frontend
+<p align="center">
+  <img src="readme_screenshots/UI.jpeg" alt="Architecture Diagram" style="width:700px;" />
+</p>
 <!-- Add your dashboard screenshot here -->
-
-### File Upload
-![File Upload](screenshots/file-upload.png)
-<!-- Add your file upload screenshot here -->
-
-### Deduplication
-![Deduplication](screenshots/deduplication.png)
-<!-- Add your deduplication screenshot here -->
 
 ## Architecture
 
@@ -37,7 +31,10 @@ The project consists of three main components:
 2. **Frontend UI**: OwnCloud-like interface for users to interact with the system
 3. **Node.js Server**: Serves the frontend assets
 
-![Architecture Diagram](screenshots/architecture.png)
+<p align="center">
+  <img src="readme_screenshots/architecture.png" alt="Architecture Diagram" style="width:700px;" />
+</p>
+
 <!-- Add your architecture diagram here -->
 
 ## Installation & Setup
@@ -119,7 +116,7 @@ POST /owncloud-upload?userID={userID}
 
 ## Detailed Documentation
 
-For more detailed documentation, please visit our [GitBook](https://yourname.gitbook.io/filecloud-docs/).
+For more detailed documentation, please visit our [GitBook](https://tejass-organization-5.gitbook.io/deduper).
 
 The documentation includes:
 - Complete API reference
